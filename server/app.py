@@ -5,15 +5,9 @@ from env.environment import TrafficEnv
 app = FastAPI()
 env = TrafficEnv()
 
-
-class ActionModel(BaseModel):
-    signal: str
-
-
-@app.post("/reset")
-def reset():
-    obs = env.reset()
-    return obs.dict()
+@app.get("/")
+def root():
+    return {"status": "Traffic Control Env Running"}
 
 
 @app.post("/step")
