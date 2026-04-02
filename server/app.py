@@ -12,6 +12,10 @@ class ActionModel(BaseModel):
 def root():
     return {"status": "Traffic Control Env Running"}
 
+@app.post("/reset")
+def reset():
+    obs = env.reset()
+    return obs.dict()
 
 @app.post("/step")
 def step(action: ActionModel):
