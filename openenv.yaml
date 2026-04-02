@@ -1,0 +1,8 @@
+name: autonomous-traffic-control
+version: 0.1.0
+entrypoint: env.environment:TrafficEnv
+
+tasks:
+  - easy
+  - medium
+  - hard
