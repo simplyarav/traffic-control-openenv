@@ -40,22 +40,36 @@ def root():
     return {
         "project": "Autonomous Traffic Control OpenEnv",
         "description": "AI-driven traffic signal control simulation",
-        "endpoints": {
-            "reset": "POST /reset",
+        "usage": {
+            "reset": "POST /reset?task=easy|medium|hard",
             "step": "POST /step {signal: NS_GREEN | EW_GREEN}",
             "state": "GET /state"
-        }
+        },
+        "metrics": [
+            "total_vehicles",
+            "avg_waiting_time",
+            "traffic_distribution_percent",
+            "congestion_level"
+        ]
     }
 
 @app.post("/reset", tags=["Environment"], summary="Reset environment")
-def reset():
+def reset(task: str = "easy"):
+    global env
+    env = TrafficEnv(task=task)
     obs = env.reset()
     return obs.dict()
 
 @app.post("/step", tags=["Environment"], summary="Take one action step")
 def step(action: ActionModel):
-    obs, reward, done, info = env.step(action)
 
+    if action.signal not in ["NS_GREEN", "EW_GREEN"]:
+        return {
+            "error": "Invalid signal",
+            "valid_signals": ["NS_GREEN", "EW_GREEN"]
+        }
+
+    obs, reward, done, info = env.step(action)
     metrics = compute_metrics(env.state())
 
     return {
@@ -68,7 +82,13 @@ def step(action: ActionModel):
 
 @app.get("/state", tags=["Environment"], summary="Get current state")
 def state():
-    return env.state()
+    state_data = env.state()
+    metrics = compute_metrics(state_data)
+
+    return {
+        "state": state_data,
+        "metrics": metrics
+    }
 
 
 def main():
