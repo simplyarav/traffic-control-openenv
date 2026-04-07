@@ -1,46 +1,59 @@
-# Autonomous Traffic Control OpenEnv
+Autonomous Traffic Control using OpenEnv
 
-## Overview
-This project implements an OpenEnv-compatible reinforcement learning environment for autonomous traffic signal control at a four-way intersection.
+Why I built this?
 
-The goal is to minimize queue length, reduce wait time, and prioritize emergency vehicles.
+Traffic congestion at intersections is a common real-world problem. This project simulates a traffic light controller that an AI agent can learn to optimize. The goal was to create a realistic environment where reinforcement learning agents can practice managing traffic efficiently.
 
-## Observation Space
+What problem it solves?
+
+This environment models a 4-way intersection and allows an AI to:
+1) Reduce waiting vehicles
+2) Handle emergency traffic
+3) Balance traffic flow
+4) Avoid congestion buildup
+
+It provides a structured benchmark for evaluating decision-making agents in traffic control scenarios.
+
+How it works?
+
+The environment exposes REST APIs:
+- POST /reset : resets simulation
+- POST /step : applies signal action
+- GET /state : returns current traffic state
+
+How to test?
+
+Step 1: Open /docs endpoint
+Step 2: Call /reset
+Step 3: Call /step with signal
+Step 4: Observe reward and queue changes
+
+Actions:
+
+* NS_GREEN : North/South traffic moves
+* EW_GREEN : East/West traffic moves
+
+Expected Output
+
+Example reset response:
 {
-  queues: {N, S, E, W},
-  emergency: null | direction,
-  time: int
+  "queues": {"N":2,"S":2,"E":2,"W":2},
+  "emergency": null,
+  "time": 0
 }
 
-## Action Space
+Example step response:
 {
-  signal: "NS_GREEN" | "EW_GREEN"
+  "observation": {...},
+  "reward": -0.12,
+  "done": false
 }
 
-## Tasks
-1. easy — low traffic
-2. medium — moderate traffic
-3. hard — high traffic with emergencies
+Demo
 
-## Reward
-- negative total queue length
-- bonus for clearing emergency vehicle
-- penalty for long waiting queues
-
-## API Endpoints
-POST /reset
-POST /step
-GET /state
-
-## Deployment
-HuggingFace Space:
+Live environment:
 https://simplyarav-traffic-control-env.hf.space
 
-## Baseline
-Random policy baseline implemented in inference.py
+Technologies Used
 
-## Docker
-Environment runs via Docker container on HuggingFace Spaces.
-
-## Author
-Kaushtubh Pandey
+Python, FastAPI, Docker, OpenEnv, Hugging Face Spaces
