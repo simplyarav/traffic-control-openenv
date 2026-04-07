@@ -35,10 +35,10 @@ The environment exposes REST APIs:
 
 How to test?
 
-Step 1: Open /docs endpoint
-Step 2: Call /reset
-Step 3: Call /step with signal
-Step 4: Observe reward and queue changes
+1. Open /docs endpoint
+2. Call /reset
+3. Call /step with signal
+4. Observe reward and queue changes
 
 Actions:
 
