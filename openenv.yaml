@@ -5,18 +5,18 @@ entrypoint: env.environment:TrafficEnv
 tasks:
   - name: easy
     description: Low traffic scenario
-    grader:
-      type: score
-      pass_threshold: 0.2
+    graders:
+      - type: score
+        pass_threshold: 0.2
 
   - name: medium
     description: Medium traffic scenario
-    grader:
-      type: score
-      pass_threshold: 0.4
+    graders:
+      - type: score
+        pass_threshold: 0.4
 
   - name: hard
     description: Heavy traffic scenario
-    grader:
-      type: score
-      pass_threshold: 0.6
+    graders:
+      - type: score
+        pass_threshold: 0.6
