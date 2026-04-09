@@ -35,10 +35,17 @@ The environment exposes REST APIs:
 
 How to test?
 
+<<<<<<< HEAD
 1. Open /docs endpoint
 2. Call /reset
 3. Call /step with signal
 4. Observe reward and queue changes
+=======
+Step 1: Open /docs endpoint
+Step 2: Call /reset
+Step 3: Call /step with signal
+Step 4: Observe reward and queue changes
+>>>>>>> d58a3452a4d5dfe2c1ddc3a1ebb008503061e3b6
 
 Actions:
 
