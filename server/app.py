@@ -57,8 +57,11 @@ def root():
 def reset(task: str = "easy"):
     global env
     env = TrafficEnv(task=task)
-    obs = env.reset()
-    return obs.dict()
+@app.post("/reset", tags=["Environment"], summary="Reset environment")
+def reset(task: str = "easy"):
+    global env
+    env = TrafficEnv(task=task)
+    return env.reset()
 
 @app.post("/step", tags=["Environment"], summary="Take one action step")
 def step(action: ActionModel):
@@ -73,7 +76,7 @@ def step(action: ActionModel):
     metrics = compute_metrics(env.state())
 
     return {
-        "observation": obs.dict(),
+        "observation": obs,
         "reward": reward,
         "done": done,
         "metrics": metrics
