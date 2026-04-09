@@ -1,6 +1,7 @@
 import json
 import os
 import urllib.request
+import urllib.error
 
 API_BASE_URL = os.getenv("API_BASE_URL", "https://simplyarav-traffic-control-env.hf.space")
 MODEL_NAME = os.getenv("MODEL_NAME", "traffic-baseline")
@@ -11,19 +12,23 @@ MAX_STEPS = 5
 
 
 def post(url, data=None):
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(data).encode("utf-8") if data else None,
-        headers={"Content-Type": "application/json"},
-        method="POST"
-    )
-    with urllib.request.urlopen(req) as f:
-        return json.loads(f.read().decode())
+    try:
+        payload = json.dumps(data if data is not None else {}).encode("utf-8")
+        req = urllib.request.Request(
+            url,
+            data=payload,
+            headers={"Content-Type": "application/json"},
+            method="POST"
+        )
+        with urllib.request.urlopen(req) as f:
+            return json.loads(f.read().decode())
+    except Exception:
+        return {}
 
 
 print(f"[START] task={TASK} env={ENV_NAME} model={MODEL_NAME}", flush=True)
 
-state = post(f"{API_BASE_URL}/reset")
+state = post(f"{API_BASE_URL}/reset", {})
 
 rewards = []
 success = False
