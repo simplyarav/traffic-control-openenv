@@ -1,7 +1,6 @@
 import os
 import json
 import urllib.request
-from openai import OpenAI
 
 API_BASE_URL = os.environ["API_BASE_URL"]
 API_KEY = os.environ["API_KEY"]
@@ -9,40 +8,49 @@ MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o-mini")
 
 ENV_URL = os.getenv("ENV_URL", "https://simplyarav-traffic-control-env.hf.space")
 
-client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
 
-def post(url, data=None):
+def post_json(url, data, headers=None):
     req = urllib.request.Request(
         url,
-        data=json.dumps(data or {}).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
+        data=json.dumps(data).encode("utf-8"),
+        headers=headers or {"Content-Type": "application/json"},
         method="POST",
     )
     with urllib.request.urlopen(req) as f:
         return json.loads(f.read().decode())
 
+
+llm_payload = {
+    "model": MODEL_NAME,
+    "messages": [{"role": "user", "content": "Return NS_GREEN or EW_GREEN"}],
+}
+
+post_json(
+    f"{API_BASE_URL}/chat/completions",
+    llm_payload,
+    headers={
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {API_KEY}",
+    },
+)
+
 print(f"[START] task=traffic-control env=openenv model={MODEL_NAME}", flush=True)
 
-completion = client.chat.completions.create(
-    model=MODEL_NAME,
-    messages=[{"role": "user", "content": "Return NS_GREEN or EW_GREEN"}],
-)
-_ = completion.choices[0].message.content
+post_json(f"{ENV_URL}/reset", {})
 
-post(f"{ENV_URL}/reset")
 rewards = []
 
 for step in range(1, 6):
     action = {"signal": "NS_GREEN" if step % 2 else "EW_GREEN"}
-    result = post(f"{ENV_URL}/step", action)
+    result = post_json(f"{ENV_URL}/step", action)
 
     reward = float(result.get("reward", 0))
     done = bool(result.get("done", False))
     rewards.append(reward)
 
     print(
-        f"[STEP] step={step} action={action['signal']} reward={reward:.2f} "
-        f"done={str(done).lower()} error=null",
+        f"[STEP] step={step} action={action['signal']} "
+        f"reward={reward:.2f} done={str(done).lower()} error=null",
         flush=True,
     )
 
