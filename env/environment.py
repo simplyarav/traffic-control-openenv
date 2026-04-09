@@ -20,38 +20,27 @@ class TrafficEnv:
 
         return self.state()
 
-    return self.state()
+    def state(self):
+        return {
+            "queues": self.queues,
+            "time": self.time,
+            "task": self.task,
+            "emergency": self.emergency
+        }
 
     def step(self, action):
         signal = action.signal
 
         if signal == "NS_GREEN":
-            self.queues["N"] = max(0, self.queues["N"] - 2)
-            self.queues["S"] = max(0, self.queues["S"] - 2)
-
-        elif signal == "EW_GREEN":
-            self.queues["E"] = max(0, self.queues["E"] - 2)
-            self.queues["W"] = max(0, self.queues["W"] - 2)
-
-        self.queues["N"] += 1
-        self.queues["S"] += 1
-        self.queues["E"] += 1
-        self.queues["W"] += 1
+            self.queues["N"] = max(0, self.queues["N"] - 1)
+            self.queues["S"] = max(0, self.queues["S"] - 1)
+        else:
+            self.queues["E"] = max(0, self.queues["E"] - 1)
+            self.queues["W"] = max(0, self.queues["W"] - 1)
 
         self.time += 1
 
-        total_wait = sum(self.queues.values())
-
-        max_wait = 40
-        reward = max(0.0, 1 - (total_wait / max_wait))
-
-        done = self.time >= 50
+        reward = -sum(self.queues.values())
+        done = self.time >= 20
 
         return self.state(), reward, done, {}
-
-    def state(self):
-        return {
-            "queues": self.queues,
-            "time": self.time,
-            "emergency": self.emergency
-        }
