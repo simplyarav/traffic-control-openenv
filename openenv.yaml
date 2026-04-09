@@ -4,19 +4,19 @@ entrypoint: env.environment:TrafficEnv
 
 tasks:
   - name: easy
-    description: Light traffic scenario
+    description: Low traffic scenario
     grader:
-      type: reward_threshold
+      type: reward
       threshold: 0.2
 
   - name: medium
-    description: Moderate traffic scenario
+    description: Medium traffic scenario
     grader:
-      type: reward_threshold
+      type: reward
       threshold: 0.4
 
   - name: hard
     description: Heavy traffic scenario
     grader:
-      type: reward_threshold
+      type: reward
       threshold: 0.6

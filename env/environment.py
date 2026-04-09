@@ -1,7 +1,15 @@
 class TrafficEnv:
     def __init__(self, task="easy"):
         self.task = task
-        self.reset()
+        
+        if task == "easy":
+            self.traffic_density = 5
+        elif task == "medium":
+            self.traffic_density = 10
+        elif task == "hard":
+            self.traffic_density = 15
+        else:
+            self.traffic_density = 5
 
     def reset(self):
         if self.task == "easy":

@@ -57,10 +57,6 @@ def root():
 def reset(task: str = "easy"):
     global env
     env = TrafficEnv(task=task)
-@app.post("/reset", tags=["Environment"], summary="Reset environment")
-def reset(task: str = "easy"):
-    global env
-    env = TrafficEnv(task=task)
     return env.reset()
 
 @app.post("/step", tags=["Environment"], summary="Take one action step")
