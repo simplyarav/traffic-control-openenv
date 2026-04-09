@@ -37,7 +37,9 @@ class TrafficEnv:
         self.time += 1
 
         total_wait = sum(self.queues.values())
-        reward = -total_wait
+
+        max_wait = 40
+        reward = max(0.0, 1 - (total_wait / max_wait))
 
         done = self.time >= 50
 
