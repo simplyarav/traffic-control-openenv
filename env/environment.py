@@ -1,30 +1,24 @@
-TASKS = ["easy", "medium", "hard"]
 class TrafficEnv:
     TASKS = ["easy", "medium", "hard"]
 
     def __init__(self, task="easy"):
         self.task = task
         self.reset()
-        
-        if task == "easy":
-            self.traffic_density = 5
-        elif task == "medium":
-            self.traffic_density = 10
-        elif task == "hard":
-            self.traffic_density = 15
-        else:
-            self.traffic_density = 5
 
     def reset(self):
-    if self.task == "easy":
-        self.queues = {"N": 2, "S": 2, "E": 2, "W": 2}
-    elif self.task == "medium":
-        self.queues = {"N": 5, "S": 5, "E": 3, "W": 3}
-    elif self.task == "hard":
-        self.queues = {"N": 8, "S": 8, "E": 6, "W": 6}
+        if self.task == "easy":
+            self.queues = {"N": 2, "S": 2, "E": 2, "W": 2}
 
-    self.time = 0
-    self.emergency = None
+        elif self.task == "medium":
+            self.queues = {"N": 5, "S": 5, "E": 3, "W": 3}
+
+        elif self.task == "hard":
+            self.queues = {"N": 8, "S": 8, "E": 6, "W": 6}
+
+        self.time = 0
+        self.emergency = None
+
+        return self.state()
 
     return self.state()
 
