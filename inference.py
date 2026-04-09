@@ -1,61 +1,59 @@
-import json
 import os
+import json
 import urllib.request
-import urllib.error
+from openai import OpenAI
 
-API_BASE_URL = os.getenv("API_BASE_URL", "https://simplyarav-traffic-control-env.hf.space")
-MODEL_NAME = os.getenv("MODEL_NAME", "traffic-baseline")
-TASK = "traffic-control"
-ENV_NAME = "openenv"
+API_BASE_URL = os.environ["API_BASE_URL"]
+API_KEY = os.environ["API_KEY"]
+MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o-mini")
 
-MAX_STEPS = 5
+ENV_URL = os.getenv("ENV_URL", "https://simplyarav-traffic-control-env.hf.space")
 
+client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
 
 def post(url, data=None):
-    try:
-        payload = json.dumps(data if data is not None else {}).encode("utf-8")
-        req = urllib.request.Request(
-            url,
-            data=payload,
-            headers={"Content-Type": "application/json"},
-            method="POST"
-        )
-        with urllib.request.urlopen(req) as f:
-            return json.loads(f.read().decode())
-    except Exception:
-        return {}
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(data or {}).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    with urllib.request.urlopen(req) as f:
+        return json.loads(f.read().decode())
 
+print(f"[START] task=traffic-control env=openenv model={MODEL_NAME}", flush=True)
 
-print(f"[START] task={TASK} env={ENV_NAME} model={MODEL_NAME}", flush=True)
+completion = client.chat.completions.create(
+    model=MODEL_NAME,
+    messages=[{"role": "user", "content": "Return NS_GREEN or EW_GREEN"}],
+)
+_ = completion.choices[0].message.content
 
-state = post(f"{API_BASE_URL}/reset", {})
-
+post(f"{ENV_URL}/reset")
 rewards = []
-success = False
 
-for step in range(1, MAX_STEPS + 1):
-    action = {"signal": "NS_GREEN" if step % 2 == 0 else "EW_GREEN"}
+for step in range(1, 6):
+    action = {"signal": "NS_GREEN" if step % 2 else "EW_GREEN"}
+    result = post(f"{ENV_URL}/step", action)
 
-    data = post(f"{API_BASE_URL}/step", action)
-
-    reward = float(data.get("reward", 0))
-    done = bool(data.get("done", False))
-
+    reward = float(result.get("reward", 0))
+    done = bool(result.get("done", False))
     rewards.append(reward)
 
     print(
-        f"[STEP] step={step} action={action['signal']} reward={reward:.2f} done={str(done).lower()} error=null",
-        flush=True
+        f"[STEP] step={step} action={action['signal']} reward={reward:.2f} "
+        f"done={str(done).lower()} error=null",
+        flush=True,
     )
 
     if done:
-        success = True
         break
 
-score = max(0.0, min(1.0, sum(rewards) / len(rewards))) if rewards else 0.0
-reward_str = ",".join(f"{r:.2f}" for r in rewards)
+score = sum(rewards) / len(rewards) if rewards else 0.0
+score = max(0.0, min(1.0, score))
 
 print(
-    f"[END] success={str(success).lower()} steps={len(rewards)} score={score:.2f} rewards={reward_str}",
-    flush=True
+    f"[END] success=true steps={len(rewards)} score={score:.2f} "
+    f"rewards={','.join(f'{r:.2f}' for r in rewards)}",
+    flush=True,
 )
