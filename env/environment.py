@@ -1,8 +1,3 @@
-from .models import Observation
-from .simulator import TrafficSimulator
-from .rewards import compute_reward
-from .tasks import TASKS
-
 class TrafficEnv:
     def __init__(self, task="easy"):
         self.task = task
@@ -11,32 +6,46 @@ class TrafficEnv:
     def reset(self):
         if self.task == "easy":
             self.queues = {"N": 2, "S": 2, "E": 2, "W": 2}
-
         elif self.task == "medium":
             self.queues = {"N": 5, "S": 5, "E": 3, "W": 3}
-
         elif self.task == "hard":
             self.queues = {"N": 8, "S": 8, "E": 6, "W": 6}
+        else:
+            self.queues = {"N": 2, "S": 2, "E": 2, "W": 2}
 
         self.time = 0
         self.emergency = None
+
         return self.state()
 
     def step(self, action):
-        self.state_data["signal"] = action.signal
-        self.state_data = self.sim.step(self.state_data, action.signal)
+        signal = action.signal
 
-        reward = compute_reward(self.state_data, action)
-        done = self.state_data["time"] >= self.max_steps
+        if signal == "NS_GREEN":
+            self.queues["N"] = max(0, self.queues["N"] - 2)
+            self.queues["S"] = max(0, self.queues["S"] - 2)
 
-        return self._obs(), reward, done, {}
+        elif signal == "EW_GREEN":
+            self.queues["E"] = max(0, self.queues["E"] - 2)
+            self.queues["W"] = max(0, self.queues["W"] - 2)
+
+        self.queues["N"] += 1
+        self.queues["S"] += 1
+        self.queues["E"] += 1
+        self.queues["W"] += 1
+
+        self.time += 1
+
+        total_wait = sum(self.queues.values())
+        reward = -total_wait
+
+        done = self.time >= 50
+
+        return self.state(), reward, done, {}
 
     def state(self):
-        return self.state_data
-
-    def _obs(self):
-        return Observation(
-            queues=self.state_data["queues"],
-            emergency=self.state_data["emergency"],
-            time=self.state_data["time"]
-        )
+        return {
+            "queues": self.queues,
+            "time": self.time,
+            "emergency": self.emergency
+        }
