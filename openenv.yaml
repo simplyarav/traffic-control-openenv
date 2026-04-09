@@ -7,16 +7,16 @@ tasks:
     description: Low traffic scenario
     graders:
       - type: score
-        pass_threshold: 0.2
+        pass_threshold: 0.3
 
   - name: medium
     description: Medium traffic scenario
     graders:
       - type: score
-        pass_threshold: 0.4
+        pass_threshold: 0.5
 
   - name: hard
     description: Heavy traffic scenario
     graders:
       - type: score
-        pass_threshold: 0.6
+        pass_threshold: 0.7

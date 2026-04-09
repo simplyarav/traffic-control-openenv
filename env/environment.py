@@ -30,17 +30,18 @@ class TrafficEnv:
 
     def step(self, action):
         signal = action.signal
-
         if signal == "NS_GREEN":
             self.queues["N"] = max(0, self.queues["N"] - 1)
             self.queues["S"] = max(0, self.queues["S"] - 1)
         else:
             self.queues["E"] = max(0, self.queues["E"] - 1)
             self.queues["W"] = max(0, self.queues["W"] - 1)
-
         self.time += 1
-
-        reward = -sum(self.queues.values())
+        
+        total_wait = sum(self.queues.values())
+        max_wait = 40
+        score = max(0.0, 1.0 - (total_wait / max_wait))
+        
         done = self.time >= 20
-
-        return self.state(), reward, done, {}
+        
+        return self.state(), score, done, {}
