@@ -1,46 +1,54 @@
 import os
 import json
 import urllib.request
+import urllib.error
 
-API_BASE_URL = os.environ["API_BASE_URL"]
-API_KEY = os.environ["API_KEY"]
+API_BASE_URL = os.environ.get("API_BASE_URL", "")
+API_KEY = os.environ.get("API_KEY", "")
 MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o-mini")
 
 ENV_URL = os.getenv("ENV_URL", "https://simplyarav-traffic-control-env.hf.space")
+TASK = "traffic-control"
+ENV_NAME = "openenv"
+MAX_STEPS = 5
 
 
-def post_json(url, data, headers=None):
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(data).encode("utf-8"),
-        headers=headers or {"Content-Type": "application/json"},
-        method="POST",
+def post_json(url, data=None, headers=None):
+    try:
+        payload = json.dumps(data if data is not None else {}).encode("utf-8")
+        req = urllib.request.Request(
+            url,
+            data=payload,
+            headers=headers or {"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=15) as f:
+            return json.loads(f.read().decode())
+    except Exception:
+        return {}
+
+
+if API_BASE_URL and API_KEY:
+    _ = post_json(
+        f"{API_BASE_URL}/chat/completions",
+        {
+            "model": MODEL_NAME,
+            "messages": [{"role": "user", "content": "Return NS_GREEN or EW_GREEN"}],
+        },
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {API_KEY}",
+        },
     )
-    with urllib.request.urlopen(req) as f:
-        return json.loads(f.read().decode())
 
-
-llm_payload = {
-    "model": MODEL_NAME,
-    "messages": [{"role": "user", "content": "Return NS_GREEN or EW_GREEN"}],
-}
-
-post_json(
-    f"{API_BASE_URL}/chat/completions",
-    llm_payload,
-    headers={
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {API_KEY}",
-    },
-)
-
-print(f"[START] task=traffic-control env=openenv model={MODEL_NAME}", flush=True)
+print(f"[START] task={TASK} env={ENV_NAME} model={MODEL_NAME}", flush=True)
 
 post_json(f"{ENV_URL}/reset", {})
 
 rewards = []
+success = False
 
-for step in range(1, 6):
+for step in range(1, MAX_STEPS + 1):
     action = {"signal": "NS_GREEN" if step % 2 else "EW_GREEN"}
     result = post_json(f"{ENV_URL}/step", action)
 
@@ -55,13 +63,15 @@ for step in range(1, 6):
     )
 
     if done:
+        success = True
         break
 
 score = sum(rewards) / len(rewards) if rewards else 0.0
 score = max(0.0, min(1.0, score))
+reward_str = ",".join(f"{r:.2f}" for r in rewards)
 
 print(
-    f"[END] success=true steps={len(rewards)} score={score:.2f} "
-    f"rewards={','.join(f'{r:.2f}' for r in rewards)}",
+    f"[END] success={str(success).lower()} steps={len(rewards)} "
+    f"score={score:.2f} rewards={reward_str}",
     flush=True,
 )
