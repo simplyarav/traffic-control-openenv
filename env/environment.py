@@ -16,6 +16,9 @@ class TrafficEnv:
         self.time = 0
         self.emergency = None
 
+        return self.state()
+
+    def state(self):
         return {
             "queues": self.queues,
             "time": self.time,
@@ -38,19 +41,9 @@ class TrafficEnv:
         total_wait = sum(self.queues.values())
         max_wait = 40
 
-        # IMPORTANT: must be strictly between 0 and 1
-        score = max(0.01, min(0.99, 1.0 - (total_wait / max_wait)))
+        score = 1.0 - (total_wait / max_wait)
+        score = max(0.01, min(0.99, score))
 
         done = self.time >= 20
 
-        return (
-            {
-                "queues": self.queues,
-                "time": self.time,
-                "task": self.task,
-                "emergency": self.emergency
-            },
-            score,
-            done,
-            {}
-        )
+        return self.state(), score, done, {}
