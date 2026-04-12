@@ -33,7 +33,7 @@ def compute_metrics(state):
         "avg_waiting_time": avg_wait,
         "traffic_distribution_percent": percentages,
         "congestion_level": congestion
-    }    
+    }
 
 @app.get("/")
 def root():
@@ -51,42 +51,6 @@ def root():
             "traffic_distribution_percent",
             "congestion_level"
         ]
-    }
-
-@app.post("/reset", tags=["Environment"], summary="Reset environment")
-def reset(task: str = "easy", action: ActionModel = None):
-    global env
-    env = TrafficEnv(task=task)
-    return env.reset()
-
-@app.post("/step", tags=["Environment"], summary="Take one action step")
-def step(action: ActionModel):
-
-    if action.signal not in ["NS_GREEN", "EW_GREEN"]:
-        return {
-            "error": "Invalid signal",
-            "valid_signals": ["NS_GREEN", "EW_GREEN"]
-        }
-
-    obs, reward, done, info = env.step(action)
-    metrics = compute_metrics(env.state())
-
-    return {
-        "observation": obs,
-        "reward": reward,
-        "done": done,
-        "metrics": metrics
-    }
-
-
-@app.get("/state", tags=["Environment"], summary="Get current state")
-def state():
-    state_data = env.state()
-    metrics = compute_metrics(state_data)
-
-    return {
-        "state": state_data,
-        "metrics": metrics
     }
 
 @app.get("/health")
@@ -156,7 +120,7 @@ def list_tasks():
             "graders": [{"type": "score", "pass_threshold": 0.3}]
         },
         {
-            "name": "medium", 
+            "name": "medium",
             "description": "Medium traffic scenario",
             "graders": [{"type": "score", "pass_threshold": 0.5}]
         },
@@ -166,6 +130,58 @@ def list_tasks():
             "graders": [{"type": "score", "pass_threshold": 0.7}]
         }
     ]
+
+@app.post("/reset", tags=["Environment"], summary="Reset environment")
+def reset(task: str = "easy", action: ActionModel = None):
+    global env
+    env = TrafficEnv(task=task)
+    return env.reset()
+
+@app.post("/step", tags=["Environment"], summary="Take one action step")
+def step(action: ActionModel):
+    if action.signal not in ["NS_GREEN", "EW_GREEN"]:
+        return {
+            "error": "Invalid signal",
+            "valid_signals": ["NS_GREEN", "EW_GREEN"]
+        }
+
+    obs, reward, done, info = env.step(action)
+    metrics = compute_metrics(env.state())
+
+    return {
+        "observation": obs,
+        "reward": reward,
+        "done": done,
+        "metrics": metrics
+    }
+
+@app.get("/state", tags=["Environment"], summary="Get current state")
+def state():
+    state_data = env.state()
+    metrics = compute_metrics(state_data)
+
+    return {
+        "state": state_data,
+        "metrics": metrics
+    }
+
+@app.post("/grader")
+def grader(task: str = "easy"):
+    state_data = env.state()
+    queues = state_data.get("queues", {})
+    avg_queue = sum(queues.values()) / len(queues) if queues else 0
+    score = max(0.0, min(1.0, 1 - (avg_queue / 25)))
+
+    thresholds = {"easy": 0.3, "medium": 0.5, "hard": 0.7}
+    passed = score >= thresholds.get(task, 0.3)
+
+    return {
+        "task": task,
+        "score": score,
+        "passed": passed,
+        "grader_type": "score",
+        "pass_threshold": thresholds.get(task, 0.3)
+    }
 
 def main():
     import uvicorn
