@@ -1,6 +1,35 @@
 class TrafficEnv:
     TASKS = ["easy", "medium", "hard"]
 
+    metadata = {
+        "tasks": [
+            {
+                "name": "easy",
+                "description": "Low traffic",
+                "grader": {
+                    "type": "score",
+                    "pass_threshold": 0.3
+                }
+            },
+            {
+                "name": "medium",
+                "description": "Medium traffic",
+                "grader": {
+                    "type": "score",
+                    "pass_threshold": 0.5
+                }
+            },
+            {
+                "name": "hard",
+                "description": "Heavy traffic",
+                "grader": {
+                    "type": "score",
+                    "pass_threshold": 0.7
+                }
+            }
+        ]
+    }
+
     def __init__(self, task="easy"):
         self.task = task
         self.reset()
