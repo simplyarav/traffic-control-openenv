@@ -6,17 +6,23 @@ tasks:
   - id: easy
     description: Low traffic
     grader:
-      type: score
+      type: numeric
+      min: 0
+      max: 1
       pass_threshold: 0.3
 
   - id: medium
     description: Medium traffic
     grader:
-      type: score
+      type: numeric
+      min: 0
+      max: 1
       pass_threshold: 0.5
 
   - id: hard
     description: Heavy traffic
     grader:
-      type: score
+      type: numeric
+      min: 0
+      max: 1
       pass_threshold: 0.7
