@@ -91,7 +91,61 @@ def state():
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {"status": "healthy"}
+
+@app.get("/metadata")
+def metadata():
+    return {
+        "name": "autonomous-traffic-control",
+        "description": "AI agent controls traffic signals at a 4-way intersection to minimize vehicle queues",
+        "version": "0.1.0",
+        "author": "simplyarav"
+    }
+
+@app.get("/schema")
+def schema():
+    return {
+        "action": {
+            "type": "object",
+            "properties": {
+                "signal": {
+                    "type": "string",
+                    "enum": ["NS_GREEN", "EW_GREEN"],
+                    "description": "Traffic signal direction to activate"
+                }
+            },
+            "required": ["signal"]
+        },
+        "observation": {
+            "type": "object",
+            "properties": {
+                "queues": {"type": "object"},
+                "time": {"type": "integer"},
+                "task": {"type": "string"},
+                "emergency": {"type": "string"}
+            }
+        },
+        "state": {
+            "type": "object",
+            "properties": {
+                "queues": {"type": "object"},
+                "time": {"type": "integer"},
+                "task": {"type": "string"},
+                "emergency": {"type": "string"}
+            }
+        }
+    }
+
+@app.post("/mcp")
+def mcp(request: dict = None):
+    return {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+            "name": "autonomous-traffic-control",
+            "version": "0.1.0"
+        }
+    }
 
 @app.get("/tasks")
 def list_tasks():
