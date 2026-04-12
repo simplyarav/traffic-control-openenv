@@ -1,24 +1,22 @@
 spec_version: 1
 name: autonomous-traffic-control
-version: 0.1.0
-
 entrypoint: env.environment:TrafficEnv
 
 tasks:
-  - name: easy
-    description: Low traffic scenario
-    graders:
-      - type: score
-        pass_threshold: 0.3
+  - id: easy
+    description: Low traffic
+    grader:
+      type: score
+      pass_threshold: 0.3
 
-  - name: medium
-    description: Medium traffic scenario
-    graders:
-      - type: score
-        pass_threshold: 0.5
+  - id: medium
+    description: Medium traffic
+    grader:
+      type: score
+      pass_threshold: 0.5
 
-  - name: hard
-    description: Heavy traffic scenario
-    graders:
-      - type: score
-        pass_threshold: 0.7
+  - id: hard
+    description: Heavy traffic
+    grader:
+      type: score
+      pass_threshold: 0.7
