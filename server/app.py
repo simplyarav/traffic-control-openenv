@@ -54,7 +54,7 @@ def root():
     }
 
 @app.post("/reset", tags=["Environment"], summary="Reset environment")
-def reset(task: str = "easy"):
+def reset(task: str = "easy", action: ActionModel = None):
     global env
     env = TrafficEnv(task=task)
     return env.reset()
@@ -89,37 +89,33 @@ def state():
         "metrics": metrics
     }
 
-@app.get("/tasks", tags=["Environment"], summary="List all tasks")
-def list_tasks():
-    return {
-        "tasks": [
-            {
-                "name": "easy",
-                "description": "Low traffic scenario with minimal congestion",
-                "graders": [{"type": "score", "pass_threshold": 0.3}]
-            },
-            {
-                "name": "medium", 
-                "description": "Medium traffic scenario with moderate congestion",
-                "graders": [{"type": "score", "pass_threshold": 0.5}]
-            },
-            {
-                "name": "hard",
-                "description": "Heavy traffic scenario with high congestion",
-                "graders": [{"type": "score", "pass_threshold": 0.7}]
-            }
-        ]
-    }
-
-@app.get("/health", tags=["Environment"], summary="Health check")
+@app.get("/health")
 def health():
     return {"status": "ok"}
 
+@app.get("/tasks")
+def list_tasks():
+    return [
+        {
+            "name": "easy",
+            "description": "Low traffic scenario",
+            "graders": [{"type": "score", "pass_threshold": 0.3}]
+        },
+        {
+            "name": "medium", 
+            "description": "Medium traffic scenario",
+            "graders": [{"type": "score", "pass_threshold": 0.5}]
+        },
+        {
+            "name": "hard",
+            "description": "Heavy traffic scenario",
+            "graders": [{"type": "score", "pass_threshold": 0.7}]
+        }
+    ]
 
 def main():
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=7860)
-
 
 if __name__ == "__main__":
     main()

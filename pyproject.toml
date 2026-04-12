@@ -2,7 +2,7 @@
 name = "traffic-control-env"
 version = "0.1.0"
 description = "Autonomous traffic control OpenEnv environment"
-authors = [{ name = "Your Name" }]
+authors = [{ name = "Kaushtubh Pandey" }]
 dependencies = [
     "pydantic",
     "numpy",
