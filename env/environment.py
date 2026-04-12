@@ -47,3 +47,6 @@ class TrafficEnv:
         done = self.time >= 20
 
         return self.state(), score, done, {}
+    
+    def make_env(task="easy"):
+        return TrafficEnv(task=task)
