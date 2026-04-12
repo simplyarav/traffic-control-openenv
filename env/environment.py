@@ -1,6 +1,38 @@
 class TrafficEnv:
     TASKS = ["easy", "medium", "hard"]
 
+    metadata = {
+        "tasks": [
+            {
+                "name": "easy",
+                "graders": [
+                    {
+                        "type": "score",
+                        "pass_threshold": 0.3
+                    }
+                ]
+            },
+            {
+                "name": "medium",
+                "graders": [
+                    {
+                        "type": "score",
+                        "pass_threshold": 0.5
+                    }
+                ]
+            },
+            {
+                "name": "hard",
+                "graders": [
+                    {
+                        "type": "score",
+                        "pass_threshold": 0.7
+                    }
+                ]
+            }
+        ]
+    }
+
     def __init__(self, task="easy"):
         self.task = task
         self.reset()
@@ -12,6 +44,8 @@ class TrafficEnv:
             self.queues = {"N": 5, "S": 5, "E": 3, "W": 3}
         elif self.task == "hard":
             self.queues = {"N": 8, "S": 8, "E": 6, "W": 6}
+        else:
+            self.queues = {"N": 2, "S": 2, "E": 2, "W": 2}
 
         self.time = 0
         self.emergency = None
@@ -47,6 +81,7 @@ class TrafficEnv:
         done = self.time >= 20
 
         return self.state(), score, done, {}
-    
-    def make_env(task="easy"):
-        return TrafficEnv(task=task)
+
+
+def make_env(task="easy"):
+    return TrafficEnv(task=task)
