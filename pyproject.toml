@@ -2,17 +2,22 @@
 name = "traffic-control-env"
 version = "0.1.0"
 description = "Autonomous traffic control OpenEnv environment"
-authors = [
-    { name = "Your Name" }
-]
+authors = [{ name = "Your Name" }]
 dependencies = [
     "pydantic",
     "numpy",
+    "fastapi",
+    "uvicorn",
     "openenv-core>=0.2.0"
 ]
 
 [project.scripts]
-server = "server.app:main"
+server = "app:main"
 
 [tool.openenv]
-entrypoint = "env.environment:TrafficEnv"
+spec_version = 1
+name = "autonomous-traffic-control"
+type = "environment"
+runtime = "docker"
+app = "app.py"
+port = 7860

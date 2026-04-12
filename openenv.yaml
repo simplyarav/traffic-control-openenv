@@ -1,22 +1,25 @@
+spec_version: 1
 name: autonomous-traffic-control
-version: 0.1.0
-entrypoint: env.environment:TrafficEnv
+type: environment
+runtime: docker
+app: app.py
+port: 7860
 
 tasks:
   - name: easy
-    description: Low traffic scenario
+    description: Low traffic scenario with minimal congestion
     graders:
       - type: score
         pass_threshold: 0.3
 
   - name: medium
-    description: Medium traffic scenario
+    description: Medium traffic scenario with moderate congestion
     graders:
       - type: score
         pass_threshold: 0.5
 
   - name: hard
-    description: Heavy traffic scenario
+    description: Heavy traffic scenario with high congestion
     graders:
       - type: score
         pass_threshold: 0.7

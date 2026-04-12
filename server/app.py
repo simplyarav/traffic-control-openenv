@@ -89,6 +89,32 @@ def state():
         "metrics": metrics
     }
 
+@app.get("/tasks", tags=["Environment"], summary="List all tasks")
+def list_tasks():
+    return {
+        "tasks": [
+            {
+                "name": "easy",
+                "description": "Low traffic scenario with minimal congestion",
+                "graders": [{"type": "score", "pass_threshold": 0.3}]
+            },
+            {
+                "name": "medium", 
+                "description": "Medium traffic scenario with moderate congestion",
+                "graders": [{"type": "score", "pass_threshold": 0.5}]
+            },
+            {
+                "name": "hard",
+                "description": "Heavy traffic scenario with high congestion",
+                "graders": [{"type": "score", "pass_threshold": 0.7}]
+            }
+        ]
+    }
+
+@app.get("/health", tags=["Environment"], summary="Health check")
+def health():
+    return {"status": "ok"}
+
 
 def main():
     import uvicorn
