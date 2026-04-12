@@ -110,26 +110,33 @@ def mcp(request: dict = None):
             "version": "0.1.0"
         }
     }
-
 @app.get("/tasks")
 def list_tasks():
-    return [
-        {
-            "name": "easy",
-            "description": "Low traffic scenario",
-            "graders": [{"type": "score", "pass_threshold": 0.3}]
-        },
-        {
-            "name": "medium",
-            "description": "Medium traffic scenario",
-            "graders": [{"type": "score", "pass_threshold": 0.5}]
-        },
-        {
-            "name": "hard",
-            "description": "Heavy traffic scenario",
-            "graders": [{"type": "score", "pass_threshold": 0.7}]
-        }
-    ]
+    return {
+        "tasks": [
+            {
+                "name": "easy",
+                "description": "Low traffic scenario",
+                "grader": "score",
+                "pass_threshold": 0.3,
+                "graders": [{"type": "score", "pass_threshold": 0.3}]
+            },
+            {
+                "name": "medium",
+                "description": "Medium traffic scenario",
+                "grader": "score",
+                "pass_threshold": 0.5,
+                "graders": [{"type": "score", "pass_threshold": 0.5}]
+            },
+            {
+                "name": "hard",
+                "description": "Heavy traffic scenario",
+                "grader": "score",
+                "pass_threshold": 0.7,
+                "graders": [{"type": "score", "pass_threshold": 0.7}]
+            }
+        ]
+    }
 
 @app.post("/reset", tags=["Environment"], summary="Reset environment")
 def reset(task: str = "easy", action: ActionModel = None):
